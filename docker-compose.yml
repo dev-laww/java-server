@@ -1,0 +1,28 @@
+services:
+    server:
+        image: itzg/minecraft-server
+        ports:
+            - 25565:25565
+        env_file: .env.server
+        tty: true
+        stdin_open: true
+        restart: unless-stopped
+        volumes:
+            - ./data:/data
+    #     depends_on:
+    #         - backup
+
+    # backup:
+    #     image: lawww/gdrive-backup
+    #     volumes:
+    #         - ./data:/data
+    #         - ./credentials.json:/service-account.json
+    #     env_file: .env.backup
+    #     restart: unless-stopped
+    playit:
+        container_name: playit-agent
+        image: ghcr.io/playit-cloud/playit-agent:0.15
+        network_mode: host
+        env_file:
+            - .env.playit
+        restart: unless-stopped
