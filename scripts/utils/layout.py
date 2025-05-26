@@ -4,10 +4,10 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
 
-from .server import ServerInfo
+from .server import ServerStatus
 
 
-def create_layout(server_info: ServerInfo) -> Layout:
+def create_layout(server_info: ServerStatus) -> Layout:
     layout = Layout()
 
     server_logs, playit_logs, server_status, time_idle = (
