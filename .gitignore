@@ -175,4 +175,5 @@ pyrightconfig.json
 # Project-specific files
 .env.*
 data/
+backups/
 .idea/

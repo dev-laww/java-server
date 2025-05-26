@@ -26,3 +26,13 @@ services:
         env_file:
             - .env.playit
         restart: unless-stopped
+
+    backup:
+        image: itzg/mc-backup
+        depends_on:
+            server:
+                condition: service_healthy
+        env_file: .env.backup
+        volumes:
+            - ./data:/data:ro
+            - ./backups:/backups
