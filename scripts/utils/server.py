@@ -7,11 +7,10 @@ from .logging import get_logger
 logger = get_logger(__name__)
 
 
-class ServerInfo:
+class ServerStatus:
+    players_online: int
     server_logs: str
     playit_logs: str
-    server_status: str
-    time_idle: str
 
 
 def start_server(timeout: int = 100) -> None:
@@ -49,8 +48,23 @@ def start_server(timeout: int = 100) -> None:
 
         if all_ready:
             logger.info("All services are running.")
+            client.close()
             break
 
         time.sleep(1)
 
     logger.info("Minecraft server started successfully.")
+
+
+def stop_server() -> None:
+    logger.info("Stopping Minecraft server...")
+
+    client = get_docker_client()
+
+    if not client:
+        logger.error("Docker client could not be initialized. Cannot stop server.")
+        return
+
+    subprocess.run(["docker", "compose", "down"], check=True)
+
+    logger.info("Minecraft server stopped successfully.")
