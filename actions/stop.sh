@@ -1,2 +1,2 @@
 #!/bin/bash
-poetry python -m scripts start
+poetry run python -m scripts stop
