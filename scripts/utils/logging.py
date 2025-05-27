@@ -1,14 +1,13 @@
 import logging
 from typing import Optional
 
-from rich import box
+from rich.align import Align
 from rich.console import Group
 from rich.layout import Layout
 from rich.logging import RichHandler
 from rich.panel import Panel
-from rich.text import Text
 
-from .server import ServerStatus
+from ..models import ServerStatus
 
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
@@ -32,29 +31,39 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     return logger
 
 
-def render_server_status(server_info: ServerStatus) -> Layout:
-    layout = Layout()
+def render_server_status(server_info: ServerStatus, time_idle: int = 0) -> Layout:
+    layout = Layout(name='main_layout')
 
-    server_logs, playit_logs, server_status, time_idle = (
-        server_info.server_logs,
-        server_info.playit_logs,
-        server_info.server_status,
-        server_info.time_idle,
-    )
+    status = [
+        Align.center(
+            f'🟢 Server Status: {server_info.status}',
+            style='bold green' if server_info.status == 'Online' else 'bold red'
+        ),
+        Align.center(
+            f'👥 Players Online: {server_info.players_online} / {server_info.max_players}' if server_info.max_players
+            else '👥 Players Online: Unknown',
+            style='bold blue'
+        ),
+        Align.center(
+            f'🌐 Latency: {server_info.latency} ms' if server_info.latency is not None else '🌐 Latency: Unknown',
+            style='bold yellow'
+        ),
+        Align.center(
+            Align.center(f'⏱️ Time since last player left: {time_idle}', style='italic')
+        )
+    ]
 
-    layout.split_row(
-        Layout(Panel(server_logs, title="🖥️ Minecraft Server", border_style="cyan", box=box.ROUNDED)),
-        Layout(Panel(playit_logs, title="🌐 Playit Tunnel", border_style="green", box=box.ROUNDED)),
-    )
-
-    footer = Group(
-        Text(server_status, style="bold yellow"),
-        Text(f"⏱️ Time since last player left: {time_idle}", style="italic"),
+    server_stats = Layout(
+        Panel(
+            Group(*status), title='📊 Server Status',
+            border_style='magenta',
+            expand=True
+        )
     )
 
     layout.split_column(
-        layout,
-        Layout(Panel(footer, title="📊 Server Stats", border_style="magenta"))
+        server_stats,
+        Layout(Panel(server_info.server_logs, title='🖥️ Minecraft Server', border_style='cyan'), name='logs'),
     )
 
     return layout
