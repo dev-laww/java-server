@@ -88,16 +88,12 @@ def get_status() -> Optional[ServerStatus]:
         logger.error('No services found in docker-compose file.')
         return None
 
-    # server-server-1, playit-agent
-    containers = [container.name for container in client.containers.list(filters={'name': list(services_name)})]
-    print(containers)
-
     try:
         server = JavaServer.lookup('localhost:25565')
         status = server.status()
         players_online = status.players.online
-        server_logs = client.containers.get('server-server-1').logs(tail=100).decode('utf-8')
-        playit_logs = client.containers.get('playit-agent').logs(tail=100).decode('utf-8')
+        server_logs = client.containers.get('server-server-1').logs(tail=20).decode('utf-8', errors='ignore')
+        playit_logs = client.containers.get('playit-agent').logs(tail=20).decode('utf-8', errors='ignore')
 
         return ServerStatus(
             status='Online',
