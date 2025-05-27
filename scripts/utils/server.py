@@ -3,19 +3,12 @@ import time
 from typing import Optional
 
 from mcstatus import JavaServer
-from pydantic import BaseModel
 
 from .docker import get_docker_client, read_docker_compose
 from .logging import get_logger
+from ..models import ServerStatus
 
 logger = get_logger(__name__)
-
-
-class ServerStatus(BaseModel):
-    status: str = 'Unknown'
-    players_online: Optional[int] = 0
-    server_logs: Optional[str] = None
-    playit_logs: Optional[str] = None
 
 
 def start_server(timeout: int = 100) -> None:
@@ -92,12 +85,16 @@ def get_status() -> Optional[ServerStatus]:
         server = JavaServer.lookup('localhost:25565')
         status = server.status()
         players_online = status.players.online
+        max_players = status.players.max if status.players.max else 0
+        latency = status.latency
         server_logs = client.containers.get('server-server-1').logs(tail=20).decode('utf-8', errors='ignore')
         playit_logs = client.containers.get('playit-agent').logs(tail=20).decode('utf-8', errors='ignore')
 
         return ServerStatus(
             status='Online',
             players_online=players_online,
+            max_players=max_players,
+            latency=latency,
             server_logs=server_logs,
             playit_logs=playit_logs,
         )
