@@ -1,17 +1,10 @@
-import dotenv
-
-dotenv.load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Environment:
-    __values = dotenv.dotenv_values()
+class Environment(BaseSettings):
+    docker_path: str
 
-    @staticmethod
-    def get(key: str, default=None):
-        """Get an environment variable."""
-        return Environment.__values.get(key, default)
+    model_config = SettingsConfigDict(env_file='.env')
 
-    @staticmethod
-    def set(key: str, value: str):
-        """Set an environment variable."""
-        dotenv.set_key(dotenv.find_dotenv(), key, value)
+
+environment = Environment()

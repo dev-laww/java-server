@@ -5,7 +5,7 @@ import time
 import docker
 import yaml
 
-from .env import Environment
+from .env import environment
 from .logging import get_logger
 
 logger = get_logger(__name__)
@@ -33,7 +33,7 @@ def start_docker(timeout: int = 100) -> bool:
         if system == 'Darwin':
             subprocess.Popen(['open', '-a', 'Docker'])
         elif system == 'Windows':
-            docker_path = Environment.get('DOCKER_PATH')
+            docker_path = environment.docker_path
 
             if not docker_path:
                 logger.error('Docker Path is not set in the environment variables.')
