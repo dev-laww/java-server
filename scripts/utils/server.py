@@ -3,9 +3,10 @@ import time
 from typing import Optional
 
 from mcstatus import JavaServer
+from rich.live import Live
 
 from .docker import get_docker_client, read_docker_compose
-from .logging import get_logger
+from .logging import get_logger, render_server_status
 from ..models import ServerStatus
 
 logger = get_logger(__name__)
@@ -103,3 +104,12 @@ def get_status() -> Optional[ServerStatus]:
         return ServerStatus(status='Unreachable')
     finally:
         client.close()
+
+
+def monitor():
+    with Live(render_server_status(get_status()), refresh_per_second=1) as live:
+        while True:
+            status = get_status()
+            panel = render_server_status(status)
+            live.update(panel)
+            time.sleep(1)
