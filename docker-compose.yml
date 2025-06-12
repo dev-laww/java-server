@@ -1,38 +1,36 @@
 services:
-    server:
-        image: itzg/minecraft-server
-        ports:
-            - 25565:25565
-        env_file: .env.server
-        tty: true
-        stdin_open: true
-        restart: unless-stopped
-        volumes:
-            - ./data:/data
-    #     depends_on:
-    #         - backup
+  server:
+    image: itzg/minecraft-server
+    ports:
+      - 25565:25565
+      - 19132:19132/udp # GeyserMC
+      - 4499:4499/udp # Voice chat
+    env_file: .env.server
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+      - ./mods:/mods
+      - ./config:/config
+    depends_on:
+      restore-backup:
+        condition: service_completed_successfully
 
-    # backup:
-    #     image: lawww/gdrive-backup
-    #     volumes:
-    #         - ./data:/data
-    #         - ./credentials.json:/service-account.json
-    #     env_file: .env.backup
-    #     restart: unless-stopped
-    playit:
-        container_name: playit-agent
-        image: ghcr.io/playit-cloud/playit-agent:0.15
-        network_mode: host
-        env_file:
-            - .env.playit
-        restart: unless-stopped
+  restore-backup:
+    image: itzg/mc-backup
+    restart: "no"
+    entrypoint: restore-tar-backup
+    volumes:
+      - ./data:/data
+      - ./backups:/backups:ro
 
-    backup:
-        image: itzg/mc-backup
-        depends_on:
-            server:
-                condition: service_healthy
-        env_file: .env.backup
-        volumes:
-            - ./data:/data:ro
-            - ./backups:/backups
+  backup:
+    image: itzg/mc-backup
+    depends_on:
+      server:
+        condition: service_healthy
+    env_file: .env.backup
+    volumes:
+      - ./data:/data:ro
+      - ./backups:/backups

@@ -176,4 +176,7 @@ pyrightconfig.json
 .env.*
 data/
 backups/
+mods/
+config/
 .idea/
+
