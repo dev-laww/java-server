@@ -19,7 +19,7 @@ services:
 
   restore-backup:
     image: itzg/mc-backup
-    restart: "no"
+    restart: 'no'
     entrypoint: restore-tar-backup
     volumes:
       - ./data:/data
@@ -34,3 +34,11 @@ services:
     volumes:
       - ./data:/data:ro
       - ./backups:/backups
+
+  playit:
+    container_name: playit-agent
+    image: ghcr.io/playit-cloud/playit-agent:0.15
+    network_mode: host
+    env_file:
+      - .env.playit
+    restart: unless-stopped
