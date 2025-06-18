@@ -1,3 +1,4 @@
+import socket
 import subprocess
 import time
 from typing import Optional
@@ -52,7 +53,9 @@ def start_server(timeout: int = 100) -> None:
 
         time.sleep(1)
 
+    local_network_ip = socket.gethostbyname(socket.gethostname())
     logger.info('Minecraft server started successfully.')
+    logger.info(f'Minecraft server is accessible at: {local_network_ip}:25565')
 
 
 def stop_server() -> None:
@@ -88,6 +91,8 @@ def get_status() -> Optional[ServerStatus]:
         players_online = status.players.online
         max_players = status.players.max if status.players.max else 0
         latency = status.latency
+
+        # TODO: Fix this hardcoded name
         server_logs = client.containers.get('server-server-1').logs(tail=20).decode('utf-8', errors='ignore')
         playit_logs = client.containers.get('playit-agent').logs(tail=20).decode('utf-8', errors='ignore')
 
